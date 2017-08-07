@@ -1,6 +1,8 @@
 // ClientDlg.h : 头文件;
 #pragma once
 
+#include "opencv2/opencv.hpp"
+
 // CClientDlg 对话框;
 class CClientDlg : public CDialogEx
 {
@@ -29,4 +31,6 @@ public:
 	afx_msg void OnBnClickedBtnConnect();
 	SOCKET m_sockServer;
 //	DWORD WINAPI clientProc(LPARAM lparam);
+	afx_msg void OnEnChangeEditIp();
+	CString m_strIP;
 };

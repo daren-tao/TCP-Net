@@ -149,7 +149,13 @@ HCURSOR CServerDlg::OnQueryDragIcon()
 void CServerDlg::OnBnClickedBtnSend()
 {
 	// TODO: 在此添加控件通知处理程序代码;
-	int ret = send(m_sockClient, m_strBufSend.GetBuffer(0), m_strBufSend.GetLength(), 0);
+//	int ret = send(m_sockClient, m_strBufSend.GetBuffer(0), m_strBufSend.GetLength(), 0);
+
+	cv::Mat image = cv::imread("../beach.jpg", 0);
+	char* pImg = (char*)image.data;
+	int ret = send(m_sockClient, pImg, image.cols * image.rows * sizeof(uchar), 0);
+	m_strBufSend.Append("finished sending ../beach.jpg\n");
+	GetDlgItem(IDC_EDIT_SEND)->SetWindowTextA(m_strBufSend);
 }
 
 void CServerDlg::OnUpdateEditSend()

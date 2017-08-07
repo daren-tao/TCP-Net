@@ -45,6 +45,7 @@ END_MESSAGE_MAP()
 // CClientDlg 对话框;
 CClientDlg::CClientDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CClientDlg::IDD, pParent)
+	, m_strIP(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -52,6 +53,7 @@ CClientDlg::CClientDlg(CWnd* pParent /*=NULL*/)
 void CClientDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_EDIT_IP, m_strIP);
 }
 
 BEGIN_MESSAGE_MAP(CClientDlg, CDialogEx)
@@ -59,6 +61,7 @@ BEGIN_MESSAGE_MAP(CClientDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BTN_CONNECT, &CClientDlg::OnBnClickedBtnConnect)
+	ON_EN_CHANGE(IDC_EDIT_IP, &CClientDlg::OnEnChangeEditIp)
 END_MESSAGE_MAP()
 
 // CClientDlg 消息处理程序;
@@ -92,6 +95,8 @@ BOOL CClientDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标;
 
 	// TODO: 在此添加额外的初始化代码;
+	m_strIP = "127.0.0.1";
+	GetDlgItem(IDC_EDIT_IP)->SetWindowTextA(m_strIP.GetBuffer(0));
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE;
 }
@@ -149,15 +154,21 @@ DWORD WINAPI clientProc(LPARAM lparam)
 	CClientApp* pApp = (CClientApp*)lparam;
 	CClientDlg* pDlg = (CClientDlg*)pApp->GetMainWnd();
 
-//	CClientDlg* pDlg = (CClientDlg*)AfxGetMainWnd();
+	//	CClientDlg* pDlg = (CClientDlg*)AfxGetMainWnd();
 
-	char szBuf[1024];
+	//	char szBuf[1024];
+	char* szBuf = new char [1000 * 666];
+	cv::Mat image;
 	while(1)
 	{
-	memset(szBuf,0,sizeof(szBuf));
-	recv(pDlg->m_sockServer, szBuf, sizeof(szBuf), 0);
+		memset(szBuf,0,1000 * 666);
+		recv(pDlg->m_sockServer, szBuf, 1000 * 666, 0);
 
-	pDlg->SetDlgItemText(IDC_STATIC_RECV, szBuf);
+		image = cv::Mat(666, 1000, CV_8UC1, szBuf);
+		cv::imshow("image", image);
+		cv::waitKey(1);
+
+		pDlg->SetDlgItemText(IDC_STATIC_RECV, "receive successfully!");
 	}
 	return 0;
 }
@@ -173,7 +184,7 @@ void CClientDlg::OnBnClickedBtnConnect()
 	addrServer.sin_family = AF_INET;
 	addrServer.sin_port = htons(6001);
 	//客户端只需要连接指定的服务器地址，127.0.0.1是本机的回环地址;
-	addrServer.sin_addr.S_un.S_addr = inet_addr("192.168.3.70"/*"127.0.0.1"*/);
+	addrServer.sin_addr.S_un.S_addr = inet_addr(m_strIP.GetBuffer(0));
 
 	// 服务器Bind 客户端是进行连接;
 	GetDlgItem(IDC_BTN_CONNECT)->EnableWindow(FALSE);
@@ -187,4 +198,9 @@ void CClientDlg::OnBnClickedBtnConnect()
 	SetDlgItemText(IDC_STATIC_RECV, "server has been connected");
 
 	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)clientProc, (LPVOID)(&theApp), 0, 0);
+}
+
+void CClientDlg::OnEnChangeEditIp()
+{
+	GetDlgItem(IDC_EDIT_IP)->GetWindowTextA(m_strIP);
 }

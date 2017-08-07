@@ -1,9 +1,7 @@
-
 // ServerDlg.h : 头文件;
-//
-
 #pragma once
 
+#include "opencv2/opencv.hpp"
 
 // CServerDlg 对话框;
 class CServerDlg : public CDialogEx
