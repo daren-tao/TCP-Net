@@ -7,6 +7,8 @@
 #include "ClientDlg.h"
 #include "afxdialogex.h"
 
+#include <sstream>
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -95,7 +97,7 @@ BOOL CClientDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标;
 
 	// TODO: 在此添加额外的初始化代码;
-	m_strIP = "127.0.0.1";
+	m_strIP = "192.168.3.230";
 	GetDlgItem(IDC_EDIT_IP)->SetWindowTextA(m_strIP.GetBuffer(0));
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE;
@@ -154,19 +156,22 @@ DWORD WINAPI clientProc(LPARAM lparam)
 	CClientApp* pApp = (CClientApp*)lparam;
 	CClientDlg* pDlg = (CClientDlg*)pApp->GetMainWnd();
 
-	//	CClientDlg* pDlg = (CClientDlg*)AfxGetMainWnd();
-
-	//	char szBuf[1024];
-	char* szBuf = new char [1000 * 666];
+	int frameSize = IMAGE_WIDE * IMAGE_HIGH * 1.5 + 8;
+	char* szBuf = new char [frameSize];
 	cv::Mat image;
+	int i;
 	while(1)
 	{
-		memset(szBuf,0,1000 * 666);
-		recv(pDlg->m_sockServer, szBuf, 1000 * 666, 0);
-
-		image = cv::Mat(666, 1000, CV_8UC1, szBuf);
+		memset(szBuf, 0, frameSize);
+		int tolRecvdSize = 0;
+		while (tolRecvdSize < frameSize)
+		{
+			int recvSize = recv(pDlg->m_sockServer, szBuf + tolRecvdSize, frameSize - tolRecvdSize, 0);
+			tolRecvdSize += recvSize;
+		}
+		image = cv::Mat(IMAGE_WIDE, IMAGE_HIGH, CV_8UC1, (unsigned char*)szBuf + 8);
 		cv::imshow("image", image);
-		cv::waitKey(1);
+		cv::waitKey(33);
 
 		pDlg->SetDlgItemText(IDC_STATIC_RECV, "receive successfully!");
 	}
@@ -182,7 +187,7 @@ void CClientDlg::OnBnClickedBtnConnect()
 	//指定连接的服务端信息;
 	SOCKADDR_IN addrServer;
 	addrServer.sin_family = AF_INET;
-	addrServer.sin_port = htons(6001);
+	addrServer.sin_port = htons(14551);
 	//客户端只需要连接指定的服务器地址，127.0.0.1是本机的回环地址;
 	addrServer.sin_addr.S_un.S_addr = inet_addr(m_strIP.GetBuffer(0));
 

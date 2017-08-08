@@ -3,6 +3,10 @@
 
 #include "opencv2/opencv.hpp"
 
+#define IMAGE_WIDE	960
+#define IMAGE_HIGH	1280
+
+
 // CClientDlg ¶Ô»°¿ò;
 class CClientDlg : public CDialogEx
 {

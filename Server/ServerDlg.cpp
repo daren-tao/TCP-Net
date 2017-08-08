@@ -15,13 +15,13 @@ class CAboutDlg : public CDialogEx
 public:
 	CAboutDlg();
 
-// 对话框数据;
+	// 对话框数据;
 	enum { IDD = IDD_ABOUTBOX };
 
-	protected:
+protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持;
 
-// 实现;
+	// 实现;
 protected:
 	DECLARE_MESSAGE_MAP()
 };
@@ -149,13 +149,18 @@ HCURSOR CServerDlg::OnQueryDragIcon()
 void CServerDlg::OnBnClickedBtnSend()
 {
 	// TODO: 在此添加控件通知处理程序代码;
-//	int ret = send(m_sockClient, m_strBufSend.GetBuffer(0), m_strBufSend.GetLength(), 0);
+	unsigned char* y = new unsigned char [960 * 1280 * 1.5 + 8];
+	for (int i = 250; i <= 280; i++)
+	{
+		std::stringstream sstr;
+		sstr << "E:/testDemoCodes/cameraserver/0_1843200_" << i << ".yuv";
+		FILE* fp = fopen(sstr.str().c_str(), "rb");
+		fread(y + 8, 1.5 * 960 * 1280 * sizeof(unsigned char), 1, fp);
 
-	cv::Mat image = cv::imread("../beach.jpg", 0);
-	char* pImg = (char*)image.data;
-	int ret = send(m_sockClient, pImg, image.cols * image.rows * sizeof(uchar), 0);
-	m_strBufSend.Append("finished sending ../beach.jpg\n");
-	GetDlgItem(IDC_EDIT_SEND)->SetWindowTextA(m_strBufSend);
+		int ret = send(m_sockClient, (char*)y, 1.5 * 960 * 1280 * sizeof(uchar) + 8, 0);
+
+		Sleep(1000);
+	}
 }
 
 void CServerDlg::OnUpdateEditSend()
@@ -173,7 +178,7 @@ void CServerDlg::OnBnClickedBtnOpenServer()
 	//	进行绑定操作;
 	SOCKADDR_IN addrServer;
 	addrServer.sin_family = AF_INET;				//	协议簇为IPV4的;
-	addrServer.sin_port = htons(6001);				//	端口;
+	addrServer.sin_port = htons(14551);				//	端口;
 	addrServer.sin_addr.S_un.S_addr = INADDR_ANY;	// ip地址，INADDR_ANY表示绑定电脑上所有网卡IP;
 	//	完成绑定操作;
 	int ret = bind(m_sockServer, (sockaddr *)&addrServer, sizeof(sockaddr));
