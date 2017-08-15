@@ -156,22 +156,22 @@ DWORD WINAPI clientProc(LPARAM lparam)
 	CClientApp* pApp = (CClientApp*)lparam;
 	CClientDlg* pDlg = (CClientDlg*)pApp->GetMainWnd();
 
-	int frameSize = IMAGE_WIDE * IMAGE_HIGH * 1.5 + 8;
-	char* szBuf = new char [frameSize];
+	int bufSizePerFrame = IMAGE_WIDE * IMAGE_HIGH * 1.5 + 8;
+	char* szBuf = new char [bufSizePerFrame];
 	cv::Mat image;
 	int i;
 	while(1)
 	{
-		memset(szBuf, 0, frameSize);
-		int tolRecvdSize = 0;
-		while (tolRecvdSize < frameSize)
+		memset(szBuf, 0, bufSizePerFrame);
+		int toltalRecvdSize = 0;
+		while (toltalRecvdSize < bufSizePerFrame)
 		{
-			int recvSize = recv(pDlg->m_sockServer, szBuf + tolRecvdSize, frameSize - tolRecvdSize, 0);
-			tolRecvdSize += recvSize;
+			int recvSizeOneTime = recv(pDlg->m_sockServer, szBuf + toltalRecvdSize, bufSizePerFrame - toltalRecvdSize, 0);
+			toltalRecvdSize += recvSizeOneTime;
 		}
 		image = cv::Mat(IMAGE_WIDE, IMAGE_HIGH, CV_8UC1, (unsigned char*)szBuf + 8);
 		cv::imshow("image", image);
-		cv::waitKey(33);
+		if(cv::waitKey(33) == 0x1b)	break;
 
 		pDlg->SetDlgItemText(IDC_STATIC_RECV, "receive successfully!");
 	}
