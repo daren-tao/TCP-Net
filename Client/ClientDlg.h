@@ -3,8 +3,9 @@
 
 #include "opencv2/opencv.hpp"
 
-#define IMAGE_WIDE	960
-#define IMAGE_HIGH	1280
+
+#define IMAGE_WIDE 	240
+#define IMAGE_HIGH	320
 
 
 // CClientDlg 对话框;
@@ -20,6 +21,9 @@ public:
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 支持;
 
+
+public:
+	HANDLE m_hThread;
 
 // 实现;
 protected:
@@ -37,4 +41,13 @@ public:
 //	DWORD WINAPI clientProc(LPARAM lparam);
 	afx_msg void OnEnChangeEditIp();
 	CString m_strIP;
+	afx_msg void OnEnChangeEditWide();
+	afx_msg void OnEnChangeEditHigh();
+	CString m_strWide;
+	CString m_strHigh;
+	afx_msg void OnBnClickedBtnSave();
+	bool m_bSaved;
+	int m_iSaved;
+	afx_msg void OnBnClickedBtnCalib();
+	afx_msg void OnBnClickedBtnStopSave();
 };
